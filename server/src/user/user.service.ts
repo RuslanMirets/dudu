@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindOneOptions, Repository } from 'typeorm';
+import { SearchUserDto } from './dto/search-user.dto';
 
 @Injectable()
 export class UserService {
@@ -29,11 +30,36 @@ export class UserService {
     return this.repository.findOne(cond);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id: number, dto: UpdateUserDto) {
+    return this.repository.update(id, dto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async search(dto: SearchUserDto) {
+    const qb = this.repository.createQueryBuilder('u');
+
+    qb.limit(dto.limit || 0);
+    qb.take(dto.take || 10);
+
+    if (dto.firstName) {
+      qb.andWhere(`u.firstName ILIKE :firstName`);
+    }
+
+    if (dto.lastName) {
+      qb.andWhere(`u.lastName ILIKE :lastName`);
+    }
+
+    if (dto.email) {
+      qb.andWhere(`u.email ILIKE :email`);
+    }
+
+    qb.setParameters({
+      lastName: `%${dto.lastName}%`,
+      firstName: `%${dto.firstName}%`,
+      email: `%${dto.email}%`,
+    });
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return { items, total };
   }
 }
