@@ -4,7 +4,7 @@ import styles from './Header.module.scss';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { NavLink } from './NavLink';
+import { NavLink } from '../NavLink';
 
 export const Header: React.FC = () => {
   const isAuth = true;
